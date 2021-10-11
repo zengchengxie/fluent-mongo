@@ -1,4 +1,4 @@
-# fluent-monogo
+# fluent-mongo
 
 #### 介绍
 spring-data-mongodb增强工具包，简化 CRUD 操作，提供类fluent-mybatis的数据库操作。传统关系型数据库及围绕它们构建的orm在项目开发中有很多难用的痛点。
