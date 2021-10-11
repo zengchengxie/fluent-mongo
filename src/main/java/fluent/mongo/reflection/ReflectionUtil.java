@@ -22,10 +22,12 @@ public class ReflectionUtil {
 
 		// @Filed
 		org.springframework.data.mongodb.core.mapping.Field fieldAnnotation = field.getAnnotation(org.springframework.data.mongodb.core.mapping.Field.class);
-		String filedValue = fieldAnnotation.value();
+		if (null != fieldAnnotation) {
+			String filedValue = fieldAnnotation.value();
 
-		if (StrUtil.isNotBlank(filedValue)) {
-			return filedValue;
+			if (StrUtil.isNotBlank(filedValue)) {
+				return filedValue;
+			}
 		}
 
 		return field.getName();

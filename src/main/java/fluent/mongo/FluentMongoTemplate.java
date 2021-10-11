@@ -1,31 +1,27 @@
-package fluent.mongo.util;
+package fluent.mongo;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import fluent.mongo.builder.SortBuilder;
-import fluent.mongo.common.FluentBean;
 import fluent.mongo.common.FluentPage;
 import fluent.mongo.reflection.ReflectionUtil;
 import fluent.mongo.reflection.SerializableFunction;
 import fluent.mongo.wraper.CriteriaAndWrapper;
 import fluent.mongo.wraper.CriteriaWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
-
-public class FluentMongoUtils {
-
-	Logger logger = LoggerFactory.getLogger(this.getClass());
+public class FluentMongoTemplate {
 
 	private final MongoTemplate mongoTemplate;
 
-	public FluentMongoUtils(MongoTemplate mongoTemplate) {
+	public FluentMongoTemplate(MongoTemplate mongoTemplate) {
 		this.mongoTemplate = mongoTemplate;
 	}
 
@@ -35,18 +31,6 @@ public class FluentMongoUtils {
 		return mongoTemplate;
 	}
 
-	/**
-	 * 按查询条件获取Page
-	 *
-	 * @param fluentPage 分页
-	 * @param clazz      类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return Page 分页
-	 */
-	public <T> FluentPage<T> findPage(CriteriaWrapper criteriaWrapper, FluentPage<?> fluentPage, Class<T> clazz, String... collectionName) {
-		SortBuilder sortBuilder = new SortBuilder(FluentBean::getId, Sort.Direction.DESC);
-		return findPage(criteriaWrapper, sortBuilder, fluentPage, clazz, collectionName);
-	}
 
 	/**
 	 * 按查询条件获取Page
@@ -108,17 +92,6 @@ public class FluentMongoUtils {
 		return findPage(new CriteriaAndWrapper(), sortBuilder, fluentPage, clazz, collectionName);
 	}
 
-	/**
-	 * 获取Page
-	 * 
-	 * @param fluentPage  分页
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return Page 分页
-	 */
-	public <T> FluentPage<T> findPage(FluentPage<?> fluentPage, Class<T> clazz,String... collectionName) {
-		return findPage(new CriteriaAndWrapper(), fluentPage, clazz, collectionName);
-	}
 
 	/**
 	 * 根据id查找
@@ -143,19 +116,6 @@ public class FluentMongoUtils {
 		return Optional.ofNullable(t);
 	}
 
-	/**
-	 * 根据条件查找单个
-	 *
-	 * @param <T>      类型
-	 * @param criteriaWrapper 条件
-	 * @param clazz    类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return Optional<T> 对象
-	 */
-	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, Class<T> clazz,String... collectionName) {
-			SortBuilder sortBuilder = new SortBuilder(FluentBean::getId, Sort.Direction.DESC);
-		return findOneByQuery(criteriaWrapper, sortBuilder, clazz, collectionName);
-	}
 
 	/**
 	 * 根据条件查找单个
@@ -193,19 +153,6 @@ public class FluentMongoUtils {
 		return findOneByQuery(new CriteriaAndWrapper(), sortBuilder, clazz, collectionName);
 	}
 
-	/**
-	 * 根据条件查找List
-	 *
-	 * @param <T>      类型
-	 * @param criteriaWrapper 查询
-	 * @param clazz    类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, Class<T> clazz,String... collectionName) {
-		SortBuilder sortBuilder = new SortBuilder().add(FluentBean::getId, Sort.Direction.DESC);
-		return findListByQuery(criteriaWrapper, sortBuilder, clazz, collectionName);
-	}
 
 	/**
 	 * 根据条件查找List
@@ -248,111 +195,9 @@ public class FluentMongoUtils {
 			list = mongoTemplate.find(query, documentClass);
 		}
 
-		return extractProperty(list, ReflectionUtil.getFieldName(property), propertyClass);
+		return extractProperty(list, ReflectionUtil.getField(property), propertyClass);
 	}
 
-	/**
-	 * 根据条件查找某个属性
-	 *
-	 * @param criteriaWrapper 查询
-	 * @param documentClass   类
-	 * @param property        属性
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <R, E> List<String> findPropertiesByQuery(CriteriaWrapper criteriaWrapper, Class<?> documentClass, SerializableFunction<E, R> property, String... collectionName) {
-		return findPropertiesByQuery(criteriaWrapper, documentClass, property, String.class, collectionName);
-	}
-
-	/**
-	 * 根据id查找某个属性
-	 *
-	 * @param ids      查询
-	 * @param clazz 类
-	 * @param property      属性
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <R, E> List<String> findPropertiesByIds(List<String> ids, Class<?> clazz, SerializableFunction<E, R> property, String... collectionName) {
-		CriteriaAndWrapper criteriaAndWrapper = new CriteriaAndWrapper().in(FluentBean::getId, ids);
-		return findPropertiesByQuery(criteriaAndWrapper, clazz, property, collectionName);
-	}
-
-	/**
-	 * 根据条件查找id
-	 *
-	 * @param criteriaWrapper 查询
-	 * @param clazz    类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public List<String> findIdsByQuery(CriteriaWrapper criteriaWrapper, Class<?> clazz, String... collectionName) {
-		return findPropertiesByQuery(criteriaWrapper, clazz, FluentBean::getId, collectionName);
-	}
-
-	/**
-	 * 根据id集合查找
-	 *
-	 * @param ids  ids id集合
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findListByIds(Collection<String> ids, Class<T> clazz, String... collectionName) {
-		CriteriaAndWrapper criteriaAndWrapper = new CriteriaAndWrapper().in(FluentBean::getId, ids);
-		return findListByQuery(criteriaAndWrapper, clazz, collectionName);
-	}
-
-	/**
-	 * 根据id集合查找
-	 *
-	 * @param ids id集合
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findListByIds(Collection<String> ids, SortBuilder sortBuilder, Class<T> clazz, String... collectionName) {
-		CriteriaAndWrapper criteriaAndWrapper = new CriteriaAndWrapper().in(FluentBean::getId, ids);
-		return findListByQuery(criteriaAndWrapper, sortBuilder, clazz, collectionName);
-	}
-
-	/**
-	 * 根据id集合查找
-	 *
-	 * @param ids id集合
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findListByIds(String[] ids, SortBuilder sortBuilder, Class<T> clazz, String... collectionName) {
-		return findListByIds(Arrays.asList(ids), sortBuilder, clazz, collectionName);
-	}
-
-	/**
-	 * 根据id集合查找
-	 *
-	 * @param ids id集合
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findListByIds(String[] ids, Class<T> clazz, String... collectionName) {
-		SortBuilder sortBuilder = new SortBuilder(FluentBean::getId, Sort.Direction.DESC);
-		return findListByIds(ids, sortBuilder, clazz, collectionName);
-	}
-
-	/**
-	 * 查询全部
-	 *
-	 * @param <T>   类型
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T> List<T> findAll(Class<T> clazz, String... collectionName) {
-		SortBuilder sortBuilder = new SortBuilder(FluentBean::getId, Sort.Direction.DESC);
-		return findListByQuery(new CriteriaAndWrapper(), sortBuilder, clazz, collectionName);
-	}
 
 	/**
 	 * 查询全部
@@ -366,16 +211,6 @@ public class FluentMongoUtils {
 		return findListByQuery(new CriteriaAndWrapper(), sortBuilder, clazz, collectionName);
 	}
 
-	/**
-	 * 查找全部的id
-	 *
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public List<String> findAllIds(Class<?> clazz, String... collectionName) {
-		return findIdsByQuery(new CriteriaAndWrapper(), clazz, collectionName);
-	}
 
 	/**
 	 * 查找数量
@@ -440,7 +275,7 @@ public class FluentMongoUtils {
 	 * @return List<T> 列表
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> List<T> extractProperty(List<?> list, String property, Class<T> clazz) {
+	private <T> List<T> extractProperty(List<?> list, Field property, Class<T> clazz) {
 		Set<T> rs = new HashSet<T>();
 		for (Object object : list) {
 			Object value = ReflectUtil.getFieldValue(object, property);

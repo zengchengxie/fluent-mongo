@@ -1,14 +1,24 @@
-# mongoHelper
+# fluent-monogo
 
 #### 介绍
-spring-data-mongodb增强工具包，简化 CRUD 操作，提供类mybatis plus的数据库操作。传统关系型数据库及围绕它们构建的orm在项目开发中有很多难用的痛点，而mongodb这种文档性数据库的出现，完美的解决了sql数据库在项目开发中的诸多痛点，在mongodb4.0以后支持了事务，已经可以完美的用于工程项目。spring-data-mongodb已经对mongodb的操作做了一部分封装，但依然不够，Query Criteria Sort的操作依然有比较大的局限性，而且对于习惯sql操作的人来说，理解其使用法则依然稍显别扭。mongoHelper对spring-data-mongodb又进行了进一步封装，使其更易于使用，并添加了很多易于项目管理的功能。
+spring-data-mongodb增强工具包，简化 CRUD 操作，提供类fluent-mybatis的数据库操作。传统关系型数据库及围绕它们构建的orm在项目开发中有很多难用的痛点，而mongodb这种文档性数据库的出现，完美的解决了sql数据库在项目开发中的诸多痛点，在mongodb4.0以后支持了事务，已经可以完美的用于工程项目。spring-data-mongodb已经对mongodb的操作做了一部分封装，但依然不够，Query Criteria Sort的操作依然有比较大的局限性，而且对于习惯sql操作的人来说，理解其使用法则依然稍显别扭。fluent-mongo基于mongoHelper对spring-data-mongodb又进行了进一步封装，使其更易于使用，并添加了很多易于项目管理的功能。
 
 #### 软件架构
 本项目只适用于springBoot项目，项目也依赖springBoot相关库，springMVC项目无法使用，另外项目依赖了hutool提供的诸多Util工具，让代码更简洁。
 
-演示应用项目：https://gitee.com/cym1102/mongoStudy
+mongoHelper：https://gitee.com/cym1102/mongoHelper
 
 #### 安装教程
+
+1.  git clone 到本地
+
+```
+    git clone https://gitee.com/xiezengcheng/fluent-mongo.git
+```
+
+2.  将依赖安装到本地maven库
+
+
 
 1.  引入maven库
 
