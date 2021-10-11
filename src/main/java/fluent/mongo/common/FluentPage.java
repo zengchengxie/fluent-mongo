@@ -14,16 +14,16 @@ public class FluentPage<T> {
 	private Long totalCount = 0L;
 	
 	// 起始页,从1开始
-	private Integer curr = 1;
+	private Integer pageNum = 1;
 	
 	// 每页记录数,默认为10
-	private Integer limit = 10;
+	private Integer pageSize = 10;
 
 	// 是否查询总数量
 	private Boolean queryTotalCount = true;
 	
 	// 内容列表(非输入项)
-	private List<T> list = Collections.emptyList();
+	private List<T> contents = Collections.emptyList();
 	
 	public Boolean getQueryTotalCount() {
 		return queryTotalCount;
@@ -33,12 +33,12 @@ public class FluentPage<T> {
 		this.queryTotalCount = queryTotalCount;
 	}
 
-	public List<T> getList() {
-		return list;
+	public List<T> getContents() {
+		return contents;
 	}
 
-	public void setList(List<T> list) {
-		this.list = list;
+	public void setContents(List<T> contents) {
+		this.contents = contents;
 	}
 
 	public Long getTotalCount() {
@@ -49,20 +49,20 @@ public class FluentPage<T> {
 		this.totalCount = totalCount;
 	}
 
-	public Integer getCurr() {
-		return curr;
+	public Integer getPageNum() {
+		return pageNum;
 	}
 
-	public void setCurr(Integer curr) {
-		this.curr = curr;
+	public void setPageNum(Integer pageNum) {
+		this.pageNum = pageNum;
 	}
 
-	public Integer getLimit() {
-		return limit;
+	public Integer getPageSize() {
+		return pageSize;
 	}
 
-	public void setLimit(Integer limit) {
-		this.limit = limit;
+	public void setPageSize(Integer pageSize) {
+		this.pageSize = pageSize;
 	}
 
 }

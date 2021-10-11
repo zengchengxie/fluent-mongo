@@ -2,17 +2,18 @@ package fluent.mongo;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import fluent.mongo.builder.SortBuilder;
+import fluent.mongo.builder.UpdateBuilder;
 import fluent.mongo.common.FluentPage;
 import fluent.mongo.reflection.ReflectionUtil;
 import fluent.mongo.reflection.SerializableFunction;
 import fluent.mongo.wraper.CriteriaAndWrapper;
 import fluent.mongo.wraper.CriteriaWrapper;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -44,8 +45,8 @@ public class FluentMongoTemplate {
 	public <T> FluentPage<T> findPage(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, FluentPage<?> fluentPage, Class<T> clazz, String... collectionName) {
 
 		FluentPage<T> fluentPageResp = new FluentPage<T>();
-		fluentPageResp.setCurr(fluentPage.getCurr());
-		fluentPageResp.setLimit(fluentPage.getLimit());
+		fluentPageResp.setPageNum(fluentPage.getPageNum());
+		fluentPageResp.setPageSize(fluentPage.getPageSize());
 
 		long count;
 		// 查询出总条数
@@ -64,10 +65,10 @@ public class FluentMongoTemplate {
 		query.with(sortBuilder.toSort());
 
 		// 从那条记录开始
-		query.skip((fluentPage.getCurr() - 1) * fluentPage.getLimit());
+		query.skip((fluentPage.getPageNum() - 1) * fluentPage.getPageSize());
 
 		// 取多少条记录
-		query.limit(fluentPage.getLimit());
+		query.limit(fluentPage.getPageSize());
 
 		List<T> list = new ArrayList<>();
 		if (ArrayUtil.isNotEmpty(collectionName)) {
@@ -76,7 +77,7 @@ public class FluentMongoTemplate {
 			list = mongoTemplate.find(query, clazz);
 		}
 
-		fluentPageResp.setList(list);
+		fluentPageResp.setContents(list);
 		return fluentPageResp;
 	}
 
@@ -101,9 +102,9 @@ public class FluentMongoTemplate {
 	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
 	 * @return Optional<T> 对象
 	 */
-	public <T> Optional<T> findById(String id, Class<T> clazz,String... collectionName) {
+	public <T> Optional<T> findById(Object id, Class<T> clazz,String... collectionName) {
 
-		if (StrUtil.isEmpty(id)) {
+		if (null == id) {
 			return Optional.empty();
 		}
 		T t;
@@ -286,5 +287,136 @@ public class FluentMongoTemplate {
 
 		return new ArrayList<T>(rs);
 	}
+
+
+	/**
+	 * 插入文档对象
+	 *
+	 * @param document
+	 * @param <T>
+	 * @param collectionName 集合名称 可选
+	 * @return
+	 */
+	public <T> T insert(T document, String... collectionName) {
+
+		Field[] fields = ReflectUtil.getFields(document.getClass());
+
+		// 将@ID标识字段设为null
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(Id.class)) {
+				ReflectUtil.setFieldValue(document, field, null);
+			}
+		}
+
+		if (ArrayUtil.isNotEmpty(collectionName)) {
+			return mongoTemplate.save(document, collectionName[0]);
+		}
+
+		return mongoTemplate.save(document);
+	}
+
+
+	/**
+	 * 更新文档对象
+	 *
+	 * @param document
+	 * @param <T>
+	 * @param collectionName 集合名称 可选
+	 * @return
+	 */
+	public <T> T update(T document, String... collectionName) {
+
+		Field[] fields = ReflectUtil.getFields(document.getClass());
+
+		// 不存在返回null，代表更新失败
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(Id.class)) {
+				if (!findById(ReflectUtil.getFieldValue(document, field), document.getClass(), collectionName).isPresent()) {
+					return null;
+				}
+			}
+		}
+
+		if (ArrayUtil.isNotEmpty(collectionName)) {
+			return mongoTemplate.save(document, collectionName[0]);
+		}
+
+		return mongoTemplate.save(document);
+	}
+
+
+	/**
+	 * 批量插入对象
+	 *
+	 * @param list documentList集合
+	 *
+	 */
+	public <T> List<T> insertAll(List<T> list) {
+		if (ArrayUtil.isEmpty(list)) {
+			return new ArrayList<>();
+		}
+
+		for (T document : list) {
+			Field[] fields = ReflectUtil.getFields(document.getClass());
+
+			// 将@ID标识字段设为null
+			for (Field field : fields) {
+				if (field.isAnnotationPresent(Id.class)) {
+					ReflectUtil.setFieldValue(document, field, null);
+				}
+			}
+		}
+
+		return (List<T>) mongoTemplate.insertAll(list);
+	}
+
+
+
+
+
+	/**
+	 * 更新查到的全部文档
+	 *
+	 * @param criteriaWrapper 查询条件
+	 * @param updateBuilder   更新
+	 * @param clazz           类
+	 */
+	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, UpdateBuilder updateBuilder, Class<?> clazz, String... collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		if (ArrayUtil.isNotEmpty(collectionName)) {
+			return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.toUpdate(), collectionName[0]);
+		} else {
+			return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.toUpdate(), clazz);
+		}
+	}
+
+
+	/**
+	 * 根据条件删除
+	 *  @param criteriaWrapper 查询
+	 * @param clazz           类
+	 * @return
+	 */
+	public DeleteResult deleteByQuery(CriteriaWrapper criteriaWrapper, Class<?> clazz, String... collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		if (ArrayUtil.isNotEmpty(collectionName)) {
+			return mongoTemplate.remove(query, collectionName[0]);
+		}
+		return mongoTemplate.remove(query, clazz);
+	}
+
+
+	/**
+	 * 累加某一个字段的数量,原子操作
+	 * @param criteriaWrapper
+	 * @param property
+	 * @param count
+	 * @param clazz
+	 */
+	public <R, E> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<E, R> property, Number count, Class<?> clazz,String... collectionName) {
+		UpdateBuilder updateBuilder = new UpdateBuilder().inc(property, count);
+		updateMulti(criteriaWrapper, updateBuilder, clazz, collectionName);
+	}
+
 
 }
