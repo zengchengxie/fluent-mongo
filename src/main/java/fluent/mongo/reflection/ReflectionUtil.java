@@ -47,7 +47,6 @@ public class ReflectionUtil {
 			if (null == method) {
 				throw new NoSuchMethodException(FluentConstant.SERIALIZABLE_ILLEGAL_ARGUMENT_EXCEPTION_MESSAGE);
 			}
-
 			method.setAccessible(Boolean.TRUE);
 			SerializedLambda serializedLambda = (SerializedLambda) method.invoke(function);
 			// 第2步 implMethodName 即为Field对应的Getter方法名
@@ -65,7 +64,6 @@ public class ReflectionUtil {
 			String declaredClass = serializedLambda.getImplClass().replace("/", ".");
 
 			Class<?> aClass = Class.forName(declaredClass, false, ClassUtils.getDefaultClassLoader());
-
 			// 第4步 Spring 中的反射工具类获取Class中定义的Field
 			field = ReflectionUtils.findField(aClass, fieldName);
 

@@ -413,7 +413,7 @@ public class FluentMongoTemplate {
 	 * @param count
 	 * @param clazz
 	 */
-	public <R, E> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<E, R> property, Number count, Class<?> clazz,String... collectionName) {
+	public <R, E> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<E,R> property, Number count, Class<?> clazz, String... collectionName) {
 		UpdateBuilder updateBuilder = new UpdateBuilder().inc(property, count);
 		updateMulti(criteriaWrapper, updateBuilder, clazz, collectionName);
 	}

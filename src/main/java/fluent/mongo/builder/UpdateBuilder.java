@@ -4,6 +4,7 @@ import fluent.mongo.reflection.ReflectionUtil;
 import fluent.mongo.reflection.SerializableFunction;
 import org.springframework.data.mongodb.core.query.Update;
 
+
 public class UpdateBuilder {
 
 	Update update = new Update();
