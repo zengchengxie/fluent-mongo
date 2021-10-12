@@ -307,6 +307,23 @@ public class FluentMongoTemplate {
 		return mongoTemplate.insert(document);
 	}
 
+	/**
+	 * 保存，不区分新增和修改
+	 *
+	 * @param document
+	 * @param collectionName
+	 * @param <T>
+	 * @return
+	 */
+	public <T> T save(T document, String... collectionName) {
+
+		if (ArrayUtil.isNotEmpty(collectionName)) {
+			return mongoTemplate.save(document, collectionName[0]);
+		}
+
+		return mongoTemplate.save(document);
+	}
+
 
 	/**
 	 * 更新文档对象
@@ -350,6 +367,7 @@ public class FluentMongoTemplate {
 
 		return (List<T>) mongoTemplate.insertAll(list);
 	}
+
 
 
 
