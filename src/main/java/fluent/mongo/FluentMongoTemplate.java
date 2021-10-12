@@ -12,6 +12,7 @@ import fluent.mongo.reflection.SerializableFunction;
 import fluent.mongo.wraper.CriteriaAndWrapper;
 import fluent.mongo.wraper.CriteriaWrapper;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.ExecutableUpdateOperation;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -299,20 +300,11 @@ public class FluentMongoTemplate {
 	 */
 	public <T> T insert(T document, String... collectionName) {
 
-		Field[] fields = ReflectUtil.getFields(document.getClass());
-
-		// 将@ID标识字段设为null
-		for (Field field : fields) {
-			if (field.isAnnotationPresent(Id.class)) {
-				ReflectUtil.setFieldValue(document, field, null);
-			}
-		}
-
 		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.save(document, collectionName[0]);
+			return mongoTemplate.insert(document, collectionName[0]);
 		}
 
-		return mongoTemplate.save(document);
+		return mongoTemplate.insert(document);
 	}
 
 
@@ -354,17 +346,6 @@ public class FluentMongoTemplate {
 	public <T> List<T> insertAll(List<T> list) {
 		if (ArrayUtil.isEmpty(list)) {
 			return new ArrayList<>();
-		}
-
-		for (T document : list) {
-			Field[] fields = ReflectUtil.getFields(document.getClass());
-
-			// 将@ID标识字段设为null
-			for (Field field : fields) {
-				if (field.isAnnotationPresent(Id.class)) {
-					ReflectUtil.setFieldValue(document, field, null);
-				}
-			}
 		}
 
 		return (List<T>) mongoTemplate.insertAll(list);

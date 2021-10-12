@@ -227,7 +227,3 @@ mongoHelper：https://gitee.com/cym1102/mongoHelper
     
     }
 ```
-### 交流群
-```
-    QQ群：321832726
-```
