@@ -137,7 +137,7 @@ public abstract class CriteriaWrapper {
 	 * @param params 参数
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper containOr(SerializableFunction<E, R> column, Collection<Object> params) {
+	public <E, R> CriteriaWrapper containOr(SerializableFunction<E, R> column, Collection<?> params) {
 		CriteriaOrWrapper criteriaOrWrapper = new CriteriaOrWrapper();
 		for (Object param : params) {
 			criteriaOrWrapper.contain(column, param);
@@ -167,7 +167,7 @@ public abstract class CriteriaWrapper {
 	 * @param params 参数
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper containAnd(SerializableFunction<E, R> column, Collection<Object> params) {
+	public <E, R> CriteriaWrapper containAnd(SerializableFunction<E, R> column, Collection<?> params) {
 		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).all(params));
 		return this;
 	}
@@ -204,7 +204,7 @@ public abstract class CriteriaWrapper {
 	 * @param params 参数
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper in(SerializableFunction<E, R> column, Collection<Object> params) {
+	public <E, R> CriteriaWrapper in(SerializableFunction<E, R> column, Collection<?> params) {
 		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).in(params));
 		return this;
 	}
@@ -227,7 +227,7 @@ public abstract class CriteriaWrapper {
 	 * @param params 参数
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper nin(SerializableFunction<E, R> column, Collection<Object> params) {
+	public <E, R> CriteriaWrapper nin(SerializableFunction<E, R> column, Collection<?> params) {
 		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).nin(params));
 		return this;
 	}
