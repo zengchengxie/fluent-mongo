@@ -13,12 +13,12 @@ public class UpdateBuilder {
 
 	}
 
-	public <E, R> UpdateBuilder(SerializableFunction<E, R> key, R value) {
+	public <E, R> UpdateBuilder(SerializableFunction<E, R> key, Object value) {
 		update.set(ReflectionUtil.getFieldName(key), value);
 	}
 
 
-	public <E, R> UpdateBuilder set(SerializableFunction<E, R> key, R value) {
+	public <E, R> UpdateBuilder set(SerializableFunction<E, R> key, Object value) {
 		update.set(ReflectionUtil.getFieldName(key), value);
 		return this;
 	}

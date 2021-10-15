@@ -34,7 +34,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper eq(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper eq(SerializableFunction<E, R> column, Object params) {
 		super.eq(column, params);
 		return this;
 	}
@@ -48,7 +48,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper ne(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper ne(SerializableFunction<E, R> column, Object params) {
 		super.ne(column, params);
 		return this;
 	}
@@ -63,7 +63,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper lt(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper lt(SerializableFunction<E, R> column, Object params) {
 		super.lt(column, params);
 		return this;
 	}
@@ -78,7 +78,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper lte(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper lte(SerializableFunction<E, R> column, Object params) {
 		super.lte(column, params);
 		return this;
 	}
@@ -93,7 +93,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper gt(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper gt(SerializableFunction<E, R> column, Object params) {
 		super.gt(column, params);
 		return this;
 	}
@@ -108,7 +108,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper gte(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper gte(SerializableFunction<E, R> column, Object params) {
 		super.gte(column, params);
 		return this;
 	}
@@ -123,7 +123,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper contain(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper contain(SerializableFunction<E, R> column, Object params) {
 		super.contain(column, params);
 		return this;
 	}
@@ -138,7 +138,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, Collection<R> params) {
+	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, Collection<Object> params) {
 		super.containOr(column, params);
 		return this;
 	}
@@ -153,7 +153,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, R[] params) {
+	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, Object[] params) {
 		super.containOr(column, params);
 		return this;
 	}
@@ -168,7 +168,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, Collection<R> params) {
+	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, Collection<Object> params) {
 		super.containAnd(column, params);
 		return this;
 	}
@@ -183,7 +183,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, R[] params) {
+	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, Object[] params) {
 		super.containAnd(column, params);
 		return this;
 	}
@@ -198,7 +198,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper like(SerializableFunction<E, R> column, R params) {
+	public <E, R> CriteriaOrWrapper like(SerializableFunction<E, R> column, Object params) {
 		super.like(column, params);
 		return this;
 	}
@@ -213,7 +213,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, Collection<R> params) {
+	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, Collection<Object> params) {
 		super.in(column, params);
 		return this;
 	}
@@ -226,7 +226,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, R[] params) {
+	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, Object[] params) {
 		super.in(column, params);
 		return this;
 	}
@@ -241,7 +241,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, Collection<R> params) {
+	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, Collection<Object> params) {
 		super.nin(column, params);
 		return this;
 	}
@@ -256,7 +256,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, R[] params) {
+	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, Object[] params) {
 		super.nin(column, params);
 		return this;
 	}
@@ -299,7 +299,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @param param  字段值
 	 * @return
 	 */
-	public <E, R> CriteriaOrWrapper findArray(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, R param) {
+	public <E, R> CriteriaOrWrapper findArray(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, Object param) {
 		super.findArray(ReflectionUtil.getFieldName(arr), column, param);
 		return this;
 	}
@@ -314,7 +314,7 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * @param param  字段值
 	 * @return
 	 */
-	public <E, R> CriteriaOrWrapper findArrayLike(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, R param) {
+	public <E, R> CriteriaOrWrapper findArrayLike(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, Object param) {
 		super.findArrayLike(ReflectionUtil.getFieldName(arr), column, param);
 		return this;
 	}
