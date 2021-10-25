@@ -335,17 +335,6 @@ public class FluentMongoTemplate {
 	 */
 	public <T> T update(T document, String... collectionName) {
 
-		Field[] fields = ReflectUtil.getFields(document.getClass());
-
-		// 不存在返回null，代表更新失败
-		for (Field field : fields) {
-			if (field.isAnnotationPresent(Id.class)) {
-				if (!findById(ReflectUtil.getFieldValue(document, field), document.getClass(), collectionName).isPresent()) {
-					return null;
-				}
-			}
-		}
-
 		if (ArrayUtil.isNotEmpty(collectionName)) {
 			return mongoTemplate.save(document, collectionName[0]);
 		}
