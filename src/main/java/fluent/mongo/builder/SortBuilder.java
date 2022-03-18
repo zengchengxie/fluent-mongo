@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class SortBuilder {
 
-	List<Order> orderList = new ArrayList<>();
+	private List<Order> orderList = new ArrayList<>();
 
 	public SortBuilder() {
 		
@@ -24,18 +24,19 @@ public class SortBuilder {
 		this.orderList.addAll(orderList);
 	}
 
-	public <E, R> SortBuilder(SerializableFunction<E, R> column, Direction direction) {
-		Order order = new Order(direction, ReflectionUtil.getFieldName(column));
+	public <T, R> SortBuilder(SerializableFunction<T, R> key, Direction direction) {
+		Order order = new Order(direction, ReflectionUtil.getFieldName(key));
 		orderList.add(order);
 	}
 
-	public <E, R> SortBuilder add(SerializableFunction<E, R> column, Direction direction) {
-		Order order = new Order(direction, ReflectionUtil.getFieldName(column));
+	public <T, R> SortBuilder add(SerializableFunction<T, R> key, Direction direction) {
+		Order order = new Order(direction, ReflectionUtil.getFieldName(key));
 		orderList.add(order);
 		return this;
 	}
 
-	public Sort toSort() {
+	public Sort build() {
 		return Sort.by(orderList);
 	}
+
 }

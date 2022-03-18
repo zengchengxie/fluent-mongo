@@ -3,6 +3,7 @@ package fluent.mongo.wraper;
 import fluent.mongo.reflection.ReflectionUtil;
 import fluent.mongo.reflection.SerializableFunction;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,24 @@ public abstract class CriteriaWrapper {
 		return criteria;
 	}
 
+	/**
+	 * 将Wrapper转化为Query
+	 *
+	 * @return Criteria
+	 */
+	public Query buildQuery() {
+		criteria = new Criteria();
+		if (list.size() > 0) {
+			if (andLink) {
+				criteria.andOperator(listToArray(list));
+			} else {
+				criteria.orOperator(listToArray(list));
+			}
+		}
+		return new Query(criteria);
+	}
+
+
 	private Criteria[] listToArray(List<Criteria> list) {
 		return list.toArray(new Criteria[list.size()]);
 	}
@@ -48,210 +67,152 @@ public abstract class CriteriaWrapper {
 	/**
 	 * 等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper eq(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).is(params));
+	public <T, R> CriteriaWrapper is(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).is(value));
 		return this;
 	}
 
 	/**
 	 * 不等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper ne(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).ne(params));
+	public <T, R> CriteriaWrapper ne(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).ne(value));
 		return this;
 	}
 
 	/**
 	 * 小于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper lt(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).lt(params));
+	public <T, R> CriteriaWrapper lt(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).lt(value));
 		return this;
 	}
 
 	/**
 	 * 小于或等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper lte(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).lte(params));
+	public <T, R> CriteriaWrapper lte(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).lte(value));
 		return this;
 	}
 
 	/**
 	 * 大于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper gt(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).gt(params));
+	public <T, R> CriteriaWrapper gt(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).gt(value));
 		return this;
 	}
 
 	/**
 	 * 大于或等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper gte(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).gte(params));
+	public <T, R> CriteriaWrapper gte(SerializableFunction<T, R> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).gte(value));
 		return this;
 	}
 
-	/**
-	 * 包含
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaWrapper
-	 */
-	public <E, R> CriteriaWrapper contain(SerializableFunction<E, R> column, Object params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).all(params));
-		return this;
-	}
 
 	/**
-	 * 包含,以或连接
-	 * 满足包含params中的某一个
 	 *
-	 * @param column 字段
-	 * @param params 参数
+	 * 某一个相等
+	 *
+	 * @value key 字段
+	 * @value values 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper containOr(SerializableFunction<E, R> column, Collection<?> params) {
+	public <T, R> CriteriaWrapper any(SerializableFunction<T, R> key, Collection<?> values) {
 		CriteriaOrWrapper criteriaOrWrapper = new CriteriaOrWrapper();
-		for (Object param : params) {
-			criteriaOrWrapper.contain(column, param);
+		for (Object value : values) {
+			criteriaOrWrapper.is(key, value);
 		}
-
 		list.add(criteriaOrWrapper.build());
 		return this;
 	}
 
-	/**
-	 * 包含,以或连接
-	 * 满足包含params中的某一个
-	 *
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaWrapper
-	 */
-	public <E, R> CriteriaWrapper containOr(SerializableFunction<E, R> column, Object[] params) {
-		return containOr(column, Arrays.asList(params));
-	}
 
 	/**
-	 * 包含,以且连接
-	 * 满足包含params中的全部
-	 *
-	 * @param column 字段
-	 * @param params 参数
+	 * 全部相等
+	 * @value key 字段
+	 * @value values 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper containAnd(SerializableFunction<E, R> column, Collection<?> params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).all(params));
+	public <T, R> CriteriaWrapper all(SerializableFunction<T, R> key, Collection<?> values) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).all(values));
 		return this;
 	}
 
-	/**
-	 * 包含,以且连接
-	 * 满足包含params中的全部
-	 *
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaWrapper
-	 */
-	public <E, R> CriteriaWrapper containAnd(SerializableFunction<E, R> column, Object[] params) {
-		return containAnd(column, Arrays.asList(params));
-	}
 
 	/**
 	 * 相似于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value value 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper like(SerializableFunction<E, R> column, Object params) {
-		Pattern pattern = Pattern.compile("^.*" + params + ".*$", Pattern.CASE_INSENSITIVE);
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).regex(pattern));
+	public <T, R> CriteriaWrapper like(SerializableFunction<T, R> key, String value) {
+		Pattern pattern = Pattern.compile("^.*" + value + ".*$", Pattern.CASE_INSENSITIVE);
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).regex(pattern));
 		return this;
 	}
 
 	/**
 	 * 在其中
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value values 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper in(SerializableFunction<E, R> column, Collection<?> params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).in(params));
+	public <T, R> CriteriaWrapper in(SerializableFunction<T, R> key, Collection<?> values) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).in(values));
 		return this;
 	}
 
-	/**
-	 * 在其中
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaWrapper
-	 */
-	public <E, R> CriteriaWrapper in(SerializableFunction<E, R> column, Object[] params) {
-		return in(column, Arrays.asList(params));
-	}
 
 	/**
 	 * 不在其中
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @value key 字段
+	 * @value values 值
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper nin(SerializableFunction<E, R> column, Collection<?> params) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).nin(params));
+	public <T, R> CriteriaWrapper nin(SerializableFunction<T, R> key, Collection<?> values) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).nin(values));
 		return this;
 	}
 
 	/**
-	 * 不在其中
-	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * 为null
+	 *
+	 * @value key 字段
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper nin(SerializableFunction<E, R> column, Object[] params) {
-		return nin(column, Arrays.asList(params));
-	}
-
-	/**
-	 * 为空
-	 *
-	 *
-	 * @param column 字段
-	 * @return CriteriaWrapper
-	 */
-	public <E, R> CriteriaWrapper isNull(SerializableFunction<E, R> column) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).is(null));
+	public <T, R> CriteriaWrapper isNull(SerializableFunction<T, R> key) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).is(null));
 		return this;
 	}
 
@@ -259,36 +220,40 @@ public abstract class CriteriaWrapper {
 	 * 不为空
 	 * 
 	 *
-	 * @param column 字段
+	 * @value key 字段
 	 * @return CriteriaWrapper
 	 */
-	public <E, R> CriteriaWrapper isNotNull(SerializableFunction<E, R> column) {
-		list.add(Criteria.where(ReflectionUtil.getFieldName(column)).ne(null));
+	public <T, R> CriteriaWrapper isNotNull(SerializableFunction<T, R> key) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(key)).ne(null));
 		return this;
 	}
+
 	/**
 	 * 数组查询
 	 * 例如：实体中有一集合，包含三个元素，A、B、C，实现至少含有其中一个元素就可以查询到此实体的时候就需要使用elemMatch来进行查询
-	 * @param arr 数组名
-	 * @param column 字段名
-	 * @param param 字段值
+	 *
 	 * @return
+	 * @value collectionKey 集合的字段名
+	 * @value key 集合中的字段名
+	 * @value value 字段值
 	 */
-	public <E, R> CriteriaWrapper findArray(String arr, SerializableFunction<E, R> column, Object param){
-		list.add(Criteria.where(arr).elemMatch(Criteria.where(ReflectionUtil.getFieldName(column)).is(param)));
+	public <T, R, M, E> CriteriaWrapper findInCollection(SerializableFunction<T, R> collectionKey, SerializableFunction<M, E> key, Object value) {
+		list.add(Criteria.where(ReflectionUtil.getFieldName(collectionKey)).elemMatch(Criteria.where(ReflectionUtil.getFieldName(key)).is(value)));
 		return this;
 	}
+
 	/**
 	 * 数组模糊查询
 	 * 例如：实体中有一集合，包含三个元素，A、B、C，实现至少含有其中一个元素就可以查询到此实体的时候就需要使用elemMatch来进行查询
-	 * @param arr 数组名
-	 * @param column 字段名
-	 * @param param 字段值
+	 * @value collectionKey 集合的字段名
+	 * @value key 集合中的字段名
+	 * @value value 字段值
 	 * @return
 	 */
-	public <E, R> CriteriaWrapper findArrayLike(String arr, SerializableFunction<E, R> column, Object param){
-		Pattern pattern = Pattern.compile("^.*" + param + ".*$", Pattern.CASE_INSENSITIVE);
-		list.add(Criteria.where(arr).elemMatch(Criteria.where(ReflectionUtil.getFieldName(column)).regex(pattern)));
+	public <T, R, M, E> CriteriaWrapper findInCollectionLike(SerializableFunction<T, R> collectionKey, SerializableFunction<M, E> key, String value){
+		Pattern pattern = Pattern.compile("^.*" + value + ".*$", Pattern.CASE_INSENSITIVE);
+		list.add(Criteria.where(ReflectionUtil.getFieldName(collectionKey)).elemMatch(Criteria.where(ReflectionUtil.getFieldName(key)).regex(pattern)));
 		return this;
 	}
+
 }

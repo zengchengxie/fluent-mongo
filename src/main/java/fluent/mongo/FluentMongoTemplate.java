@@ -6,15 +6,17 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import fluent.mongo.builder.SortBuilder;
 import fluent.mongo.builder.UpdateBuilder;
-import fluent.mongo.common.FluentPage;
+import fluent.mongo.common.FluentPageResponse;
+import fluent.mongo.common.FluentPageRequest;
 import fluent.mongo.reflection.ReflectionUtil;
 import fluent.mongo.reflection.SerializableFunction;
 import fluent.mongo.wraper.CriteriaAndWrapper;
 import fluent.mongo.wraper.CriteriaWrapper;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.ExecutableUpdateOperation;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -37,61 +39,85 @@ public class FluentMongoTemplate {
 	/**
 	 * 按查询条件获取Page
 	 *
-	 * @param criteriaWrapper 查询
-	 * @param sortBuilder     排序
-	 * @param clazz           类
 	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @param clazz 类
+	 * @param criteriaWrapper 查询
+	 * @param fluentPageRequest 分页和排序信息
 	 * @return Page 分页
 	 */
-	public <T> FluentPage<T> findPage(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, FluentPage<?> fluentPage, Class<T> clazz, String... collectionName) {
+	public <T> FluentPageResponse<T> findPage(
+											String collectionName,
+											Class<T> clazz,
+											CriteriaWrapper criteriaWrapper,
+											FluentPageRequest fluentPageRequest) {
 
-		FluentPage<T> fluentPageResp = new FluentPage<T>();
-		fluentPageResp.setPageNum(fluentPage.getPageNum());
-		fluentPageResp.setPageSize(fluentPage.getPageSize());
+		FluentPageResponse<T> fluentPageResponseResp = new FluentPageResponse<T>();
+		fluentPageResponseResp.setPageNum(fluentPageRequest.getPage());
+		fluentPageResponseResp.setPageSize(fluentPageRequest.getSize());
 
 		long count;
-		// 查询出总条数
-		if (fluentPage.getQueryTotalCount()) {
-			if (ArrayUtil.isNotEmpty(collectionName)) {
-				count = findCountByQuery(criteriaWrapper, collectionName[0]);
-			}else{
-				count = findCountByQuery(criteriaWrapper, clazz);
-			}
 
-			fluentPageResp.setTotalCount(count);
+		// 查询出总条数
+		if (fluentPageRequest.isQueryTotalCount()) {
+			count = findCountByQuery(criteriaWrapper, collectionName);
+			fluentPageResponseResp.setTotalCount(count);
 		}
 
 		// 查询List
 		Query query = new Query(criteriaWrapper.build());
-		query.with(sortBuilder.toSort());
+		query.with(fluentPageRequest.getSort());
 
-		// 从那条记录开始
-		query.skip((fluentPage.getPageNum() - 1) * fluentPage.getPageSize());
+		// 从哪条记录开始
+		query.skip((fluentPageRequest.getPage() - 1) * fluentPageRequest.getSize());
 
 		// 取多少条记录
-		query.limit(fluentPage.getPageSize());
+		query.limit(fluentPageRequest.getSize());
 
-		List<T> list = new ArrayList<>();
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			list = mongoTemplate.find(query, clazz, collectionName[0]);
-		} else {
-			list = mongoTemplate.find(query, clazz);
-		}
+		List<T> list = mongoTemplate.find(query, clazz, collectionName);
 
-		fluentPageResp.setContents(list);
-		return fluentPageResp;
+		fluentPageResponseResp.setContents(list);
+		return fluentPageResponseResp;
 	}
+
 
 	/**
 	 * 按查询条件获取Page
-	 * 
-	 * @param sortBuilder     排序
-	 * @param clazz    类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return Page 分页
+	 *
+	 * @param clazz           类
+	 * @param criteriaWrapper 查询
+	 * @param fluentPageRequest   分页排序信息
+	 * @return Page 分页数据
 	 */
-	public <T> FluentPage<T> findPage(SortBuilder sortBuilder, FluentPage<?> fluentPage, Class<T> clazz,String... collectionName) {
-		return findPage(new CriteriaAndWrapper(), sortBuilder, fluentPage, clazz, collectionName);
+	public <T> FluentPageResponse<T> findPage(Class<T> clazz,
+											  CriteriaWrapper criteriaWrapper,
+											  FluentPageRequest fluentPageRequest) {
+
+		FluentPageResponse<T> fluentPageResponseResp = new FluentPageResponse<T>();
+		fluentPageResponseResp.setPageNum(fluentPageRequest.getPage());
+		fluentPageResponseResp.setPageSize(fluentPageRequest.getSize());
+
+		long count;
+
+		// 查询出总条数
+		if (fluentPageRequest.isQueryTotalCount()) {
+			count = findCountByQuery(criteriaWrapper, clazz);
+			fluentPageResponseResp.setTotalCount(count);
+		}
+
+		// 查询List
+		Query query = new Query(criteriaWrapper.build());
+		query.with(fluentPageRequest.getSort());
+
+		// 从哪条记录开始
+		query.skip((fluentPageRequest.getPage() - 1) * fluentPageRequest.getSize());
+
+		// 取多少条记录
+		query.limit(fluentPageRequest.getSize());
+
+		List<T> list = mongoTemplate.find(query, clazz);
+
+		fluentPageResponseResp.setContents(list);
+		return fluentPageResponseResp;
 	}
 
 
@@ -100,20 +126,33 @@ public class FluentMongoTemplate {
 	 * 
 	 * @param id    id
 	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
 	 * @return Optional<T> 对象
 	 */
-	public <T> Optional<T> findById(Object id, Class<T> clazz,String... collectionName) {
+	public <T> Optional<T> findById(Object id, Class<T> clazz) {
 
 		if (null == id) {
 			return Optional.empty();
 		}
-		T t;
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			t = (T) mongoTemplate.findById(id, clazz, collectionName[0]);
-		} else {
-			t = (T) mongoTemplate.findById(id, clazz);
+		T t = mongoTemplate.findById(id, clazz);
+		return Optional.ofNullable(t);
+	}
+
+
+	/**
+	 * 根据id查找
+	 *
+	 * @param id    id
+	 * @param clazz 类
+	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @return Optional<T> 对象
+	 */
+	public <T> Optional<T> findById(Object id, Class<T> clazz,String collectionName) {
+
+		if (null == id) {
+			return Optional.empty();
 		}
+
+		T t = mongoTemplate.findById(id, clazz, collectionName);
 
 		return Optional.ofNullable(t);
 	}
@@ -124,35 +163,50 @@ public class FluentMongoTemplate {
 	 *
 	 * @param criteriaWrapper 查询
 	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
 	 * @return Optional<T> 对象
 	 */
-	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz,String... collectionName) {
+	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, Sort sort, Class<T> clazz) {
 
 		Query query = new Query(criteriaWrapper.build());
 		query.limit(1);
-		query.with(sortBuilder.toSort());
-		T t;
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			t = (T) mongoTemplate.findOne(query, clazz, collectionName[0]);
-		} else {
-			t = (T) mongoTemplate.findOne(query, clazz);
-		}
+		query.with(sort);
+		T t = mongoTemplate.findOne(query, clazz);
+		return Optional.ofNullable(t);
+	}
 
+	/**
+	 * 根据条件查找单个
+	 *
+	 * @param criteriaWrapper 查询
+	 * @param clazz 类
+	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @return Optional<T> 对象
+	 */
+	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, Sort sort, Class<T> clazz,String collectionName) {
+
+		Query query = new Query(criteriaWrapper.build());
+		query.limit(1);
+		query.with(sort);
+		T t =  mongoTemplate.findOne(query, clazz, collectionName);
 		return Optional.ofNullable(t);
 
 	}
 
 
 	/**
-	 * 根据条件查找单个
+	 * 根据条件查找List
 	 *
-	 * @param clazz 类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return Optional<T> 对象
+	 * @param <T>             类型
+	 * @param criteriaWrapper 查询
+	 * @param sort     排序
+	 * @param clazz           类
+	 * @param collectionName  集合名称 如果没有则取的是实体类注解 @Document
+	 * @return List 列表
 	 */
-	public <T> Optional<T> findOneByQuery(SortBuilder sortBuilder, Class<T> clazz,String... collectionName) {
-		return findOneByQuery(new CriteriaAndWrapper(), sortBuilder, clazz, collectionName);
+	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, Sort sort, Class<T> clazz, String collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		query.with(sort);
+		return mongoTemplate.find(query, clazz, collectionName);
 	}
 
 
@@ -161,61 +215,45 @@ public class FluentMongoTemplate {
 	 *
 	 * @param <T>      类型
 	 * @param criteriaWrapper 查询
-	 * @param sortBuilder     排序
+	 * @param sort     排序
 	 * @param clazz    类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
 	 * @return List 列表
 	 */
-	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz,String... collectionName) {
+	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, Sort sort, Class<T> clazz) {
 		Query query = new Query(criteriaWrapper.build());
-		query.with(sortBuilder.toSort());
-
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.find(query, clazz, collectionName[0]);
-		}
+		query.with(sort);
 		return mongoTemplate.find(query, clazz);
-	}
-
-	/**
-	 * 根据条件查找某个属性
-	 *
-	 * @param <T>             类型
-	 * @param criteriaWrapper 查询
-	 * @param documentClass   类
-	 * @param property        属性
-	 * @param propertyClass   属性类
-	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
-	 * @return List 列表
-	 */
-	public <T, R, E> List<T> findPropertiesByQuery(CriteriaWrapper criteriaWrapper, Class<?> documentClass, SerializableFunction<E, R> property, Class<T> propertyClass, String... collectionName) {
-		Query query = new Query(criteriaWrapper.build());
-		query.fields().include(ReflectionUtil.getFieldName(property));
-		List<?> list = new ArrayList<>();
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			list = mongoTemplate.find(query, documentClass, collectionName[0]);
-		} else {
-			list = mongoTemplate.find(query, documentClass);
-		}
-
-		return extractProperty(list, ReflectionUtil.getField(property), propertyClass);
 	}
 
 
 	/**
 	 * 查询全部
 	 *
-	 * @param <T>   类型
-	 * @param clazz 类
+	 * @param <T>            类型
+	 * @param clazz          类
 	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @param sort           排序
 	 * @return List 列表
 	 */
-	public <T> List<T> findAll(SortBuilder sortBuilder, Class<T> clazz, String... collectionName) {
-		return findListByQuery(new CriteriaAndWrapper(), sortBuilder, clazz, collectionName);
+	public <T> List<T> findAll(Class<T> clazz, String collectionName, Sort sort) {
+		return findListByQuery(new CriteriaAndWrapper(), sort, clazz, collectionName);
+	}
+
+	/**
+	 * 查询全部
+	 *
+	 * @param <T>   类型
+	 * @param clazz 类
+	 * @param sort 排序
+	 * @return List 列表
+	 */
+	public <T> List<T> findAll(Class<T> clazz,Sort sort) {
+		return findListByQuery(new CriteriaAndWrapper(), sort, clazz);
 	}
 
 
 	/**
-	 * 查找数量
+	 * 统计数量
 	 *
 	 * @param criteriaWrapper 查询
 	 * @param clazz    类
@@ -231,6 +269,7 @@ public class FluentMongoTemplate {
 		}
 		return count;
 	}
+
 
 	/**
 	 * 查找数量
@@ -268,43 +307,16 @@ public class FluentMongoTemplate {
 		return findCountByQuery(new CriteriaAndWrapper(), collectionName);
 	}
 
-	/**
-	 * 获取list中对象某个属性,组成新的list
-	 *
-	 * @param list     列表
-	 * @param clazz    类
-	 * @param property 属性
-	 * @return List<T> 列表
-	 */
-	@SuppressWarnings("unchecked")
-	private <T> List<T> extractProperty(List<?> list, Field property, Class<T> clazz) {
-		Set<T> rs = new HashSet<T>();
-		for (Object object : list) {
-			Object value = ReflectUtil.getFieldValue(object, property);
-			if (value != null && value.getClass().equals(clazz)) {
-				rs.add((T) value);
-			}
-		}
-
-		return new ArrayList<T>(rs);
-	}
-
 
 	/**
-	 * 插入文档对象
+	 * 保存，不区分新增和修改
 	 *
 	 * @param document
 	 * @param <T>
-	 * @param collectionName 集合名称 可选
 	 * @return
 	 */
-	public <T> T insert(T document, String... collectionName) {
-
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.insert(document, collectionName[0]);
-		}
-
-		return mongoTemplate.insert(document);
+	public <T> T save(T document) {
+		return mongoTemplate.save(document);
 	}
 
 	/**
@@ -315,13 +327,8 @@ public class FluentMongoTemplate {
 	 * @param <T>
 	 * @return
 	 */
-	public <T> T save(T document, String... collectionName) {
-
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.save(document, collectionName[0]);
-		}
-
-		return mongoTemplate.save(document);
+	public <T> T save(T document, String collectionName) {
+		return mongoTemplate.save(document, collectionName);
 	}
 
 
@@ -330,13 +337,44 @@ public class FluentMongoTemplate {
 	 *
 	 * @param document
 	 * @param <T>
-	 * @param collectionName 集合名称 可选
+	 * @param collectionName 集合名称
 	 * @return
 	 */
-	public <T> T update(T document, String... collectionName) {
+	public <T> T update(T document, String collectionName) {
 
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.save(document, collectionName[0]);
+		Field[] fields = ReflectUtil.getFields(document.getClass());
+
+		// 不存在返回null，代表更新失败
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(Id.class)) {
+				if (!findById(ReflectUtil.getFieldValue(document, field), document.getClass(), collectionName).isPresent()) {
+					return null;
+				}
+			}
+		}
+
+		return mongoTemplate.save(document, collectionName);
+	}
+
+
+	/**
+	 * 更新文档对象
+	 *
+	 * @param document
+	 * @param <T>
+	 * @return
+	 */
+	public <T> T update(T document) {
+
+		Field[] fields = ReflectUtil.getFields(document.getClass());
+
+		// 不存在返回null，代表更新失败
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(Id.class)) {
+				if (!findById(ReflectUtil.getFieldValue(document, field), document.getClass()).isPresent()) {
+					return null;
+				}
+			}
 		}
 
 		return mongoTemplate.save(document);
@@ -344,55 +382,66 @@ public class FluentMongoTemplate {
 
 
 	/**
-	 * 批量插入对象
+	 * 更新查到的全部文档
 	 *
-	 * @param list documentList集合
-	 *
+	 * @param criteriaWrapper 查询条件
+	 * @param update   更新
+	 * @param collectionName 集合名称
+	 * @param clazz           类
 	 */
-	public <T> List<T> insertAll(List<T> list) {
-		if (ArrayUtil.isEmpty(list)) {
-			return new ArrayList<>();
-		}
-
-		return (List<T>) mongoTemplate.insertAll(list);
+	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, Update update, Class<?> clazz, String collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), update, clazz, collectionName);
 	}
-
-
-
-
 
 
 	/**
 	 * 更新查到的全部文档
 	 *
 	 * @param criteriaWrapper 查询条件
-	 * @param updateBuilder   更新
+	 * @param update   更新
 	 * @param clazz           类
 	 */
-	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, UpdateBuilder updateBuilder, Class<?> clazz, String... collectionName) {
+	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, Update update, Class<?> clazz) {
 		Query query = new Query(criteriaWrapper.build());
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.toUpdate(), collectionName[0]);
-		} else {
-			return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.toUpdate(), clazz);
-		}
+		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), update, clazz);
 	}
 
 
 	/**
 	 * 根据条件删除
 	 *  @param criteriaWrapper 查询
-	 * @param clazz           类
+	 * @param collectionName
 	 * @return
 	 */
-	public DeleteResult deleteByQuery(CriteriaWrapper criteriaWrapper, Class<?> clazz, String... collectionName) {
+	public DeleteResult deleteByQuery(CriteriaWrapper criteriaWrapper,String collectionName) {
 		Query query = new Query(criteriaWrapper.build());
-		if (ArrayUtil.isNotEmpty(collectionName)) {
-			return mongoTemplate.remove(query, collectionName[0]);
-		}
-		return mongoTemplate.remove(query, clazz);
+		return mongoTemplate.remove(query,collectionName);
 	}
 
+	/**
+	 * 根据条件删除
+	 *  @param criteriaWrapper 查询
+	 * @return
+	 */
+	public DeleteResult deleteByQuery(CriteriaWrapper criteriaWrapper, Class<?> clazz) {
+		Query query = new Query(criteriaWrapper.build());
+		return mongoTemplate.remove(query, clazz);
+	}
+	
+
+	/**
+	 * 累加某一个字段的数量,原子操作
+	 * @param criteriaWrapper
+	 * @param property
+	 * @param count
+	 * @param clazz
+	 * @param collectionName
+	 */
+	public <T, R> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<T, R> property, Number count, Class<?> clazz, String collectionName) {
+		UpdateBuilder updateBuilder = new UpdateBuilder().inc(property, count);
+		updateMulti(criteriaWrapper, updateBuilder.build(), clazz, collectionName);
+	}
 
 	/**
 	 * 累加某一个字段的数量,原子操作
@@ -401,9 +450,9 @@ public class FluentMongoTemplate {
 	 * @param count
 	 * @param clazz
 	 */
-	public <R, E> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<E,R> property, Number count, Class<?> clazz, String... collectionName) {
+	public <T, R> void inc(CriteriaWrapper criteriaWrapper, SerializableFunction<T, R> property, Number count, Class<?> clazz) {
 		UpdateBuilder updateBuilder = new UpdateBuilder().inc(property, count);
-		updateMulti(criteriaWrapper, updateBuilder, clazz, collectionName);
+		updateMulti(criteriaWrapper, updateBuilder.build(), clazz);
 	}
 
 

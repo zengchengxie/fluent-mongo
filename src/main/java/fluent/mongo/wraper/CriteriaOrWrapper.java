@@ -29,13 +29,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper eq(SerializableFunction<E, R> column, Object params) {
-		super.eq(column, params);
+	public <T, R> CriteriaOrWrapper is(SerializableFunction<T, R> key, Object value) {
+		super.is(key, value);
 		return this;
 	}
 
@@ -43,13 +43,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 不等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper ne(SerializableFunction<E, R> column, Object params) {
-		super.ne(column, params);
+	public <T, R> CriteriaOrWrapper ne(SerializableFunction<T, R> key, Object value) {
+		super.ne(key, value);
 		return this;
 	}
 
@@ -58,13 +58,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 小于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper lt(SerializableFunction<E, R> column, Object params) {
-		super.lt(column, params);
+	public <T, R> CriteriaOrWrapper lt(SerializableFunction<T, R> key, Object value) {
+		super.lt(key, value);
 		return this;
 	}
 
@@ -73,13 +73,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 小于或等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper lte(SerializableFunction<E, R> column, Object params) {
-		super.lte(column, params);
+	public <T, R> CriteriaOrWrapper lte(SerializableFunction<T, R> key, Object value) {
+		super.lte(key, value);
 		return this;
 	}
 
@@ -88,13 +88,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 大于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper gt(SerializableFunction<E, R> column, Object params) {
-		super.gt(column, params);
+	public <T, R> CriteriaOrWrapper gt(SerializableFunction<T, R> key, Object value) {
+		super.gt(key, value);
 		return this;
 	}
 
@@ -103,88 +103,45 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 大于或等于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper gte(SerializableFunction<E, R> column, Object params) {
-		super.gte(column, params);
+	public <T, R> CriteriaOrWrapper gte(SerializableFunction<T, R> key, Object value) {
+		super.gte(key, value);
 		return this;
 	}
 
 
 
+
 	/**
-	 * 包含
+	 * 满足values中某一个相等
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param values 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper contain(SerializableFunction<E, R> column, Object params) {
-		super.contain(column, params);
+	public <T, R> CriteriaOrWrapper any(SerializableFunction<T, R> key, Collection<?> values) {
+		super.any(key, values);
 		return this;
 	}
 
 
 
+
 	/**
-	 * 包含,以或连接
+	 * values中全部相等
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param values 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, Collection<?> params) {
-		super.containOr(column, params);
-		return this;
-	}
-
-
-
-	/**
-	 * 包含,以或连接
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaOrWrapper
-	 */
-	@Override
-	public <E, R> CriteriaOrWrapper containOr(SerializableFunction<E, R> column, Object[] params) {
-		super.containOr(column, params);
-		return this;
-	}
-
-
-
-	/**
-	 * 包含,以且连接
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaOrWrapper
-	 */
-	@Override
-	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, Collection<?> params) {
-		super.containAnd(column, params);
-		return this;
-	}
-
-
-
-	/**
-	 * 包含,以且连接
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaOrWrapper
-	 */
-	@Override
-	public <E, R> CriteriaOrWrapper containAnd(SerializableFunction<E, R> column, Object[] params) {
-		super.containAnd(column, params);
+	public <T, R> CriteriaOrWrapper all(SerializableFunction<T, R> key, Collection<?> values) {
+		super.all(key, values);
 		return this;
 	}
 
@@ -193,13 +150,13 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 相似于
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param value 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper like(SerializableFunction<E, R> column, Object params) {
-		super.like(column, params);
+	public <T, R> CriteriaOrWrapper like(SerializableFunction<T, R> key, String value) {
+		super.like(key, value);
 		return this;
 	}
 
@@ -208,70 +165,42 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 在其中
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param values 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, Collection<?> params) {
-		super.in(column, params);
+	public <T, R> CriteriaOrWrapper in(SerializableFunction<T, R> key, Collection<?> values) {
+		super.in(key, values);
 		return this;
 	}
-
-	/**
-	 * 在其中
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaOrWrapper
-	 */
-	@Override
-	public <E, R> CriteriaOrWrapper in(SerializableFunction<E, R> column, Object[] params) {
-		super.in(column, params);
-		return this;
-	}
-
 
 
 	/**
 	 * 不在其中
 	 * 
-	 * @param column 字段
-	 * @param params 参数
+	 * @param key 字段
+	 * @param values 值
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, Collection<?> params) {
-		super.nin(column, params);
+	public <T, R> CriteriaOrWrapper nin(SerializableFunction<T, R> key, Collection<?> values) {
+		super.nin(key, values);
 		return this;
 	}
 
-
-
-	/**
-	 * 不在其中
-	 * 
-	 * @param column 字段
-	 * @param params 参数
-	 * @return CriteriaOrWrapper
-	 */
-	@Override
-	public <E, R> CriteriaOrWrapper nin(SerializableFunction<E, R> column, Object[] params) {
-		super.nin(column, params);
-		return this;
-	}
 
 
 	/**
 	 * 为空
 	 * 
 	 *
-	 * @param column 字段
+	 * @param key 字段
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper isNull(SerializableFunction<E, R> column) {
-		super.isNull(column);
+	public <T, R> CriteriaOrWrapper isNull(SerializableFunction<T, R> key) {
+		super.isNull(key);
 		return this;
 	}
 
@@ -280,12 +209,12 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	 * 不为空
 	 * 
 	 *
-	 * @param column 字段
+	 * @param key 字段
 	 * @return CriteriaOrWrapper
 	 */
 	@Override
-	public <E, R> CriteriaOrWrapper isNotNull(SerializableFunction<E, R> column) {
-		super.isNotNull(column);
+	public <T, R> CriteriaOrWrapper isNotNull(SerializableFunction<T, R> key) {
+		super.isNotNull(key);
 		return this;
 	}
 
@@ -293,29 +222,29 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 	/**
 	 * 数组查询
 	 * 例如：实体中有一集合，包含三个元素，A、B、C，实现至少含有其中一个元素就可以查询到此实体的时候就需要使用elemMatch来进行查询
-	 * 
-	 * @param arr    数组名
-	 * @param column 字段名
-	 * @param param  字段值
+	 * @value collectionKey 集合的字段名
+	 * @value key 集合中的字段名
+	 * @value value 字段值
 	 * @return
 	 */
-	public <E, R> CriteriaOrWrapper findArray(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, Object param) {
-		super.findArray(ReflectionUtil.getFieldName(arr), column, param);
+	@Override
+	public <T, R, M, E> CriteriaOrWrapper findInCollection(SerializableFunction<T, R> collectionKey, SerializableFunction<M, E> key, Object value){
+		super.findInCollection(collectionKey, key, value);
 		return this;
 	}
-
 
 	/**
 	 * 数组模糊查询
 	 * 例如：实体中有一集合，包含三个元素，A、B、C，实现至少含有其中一个元素就可以查询到此实体的时候就需要使用elemMatch来进行查询
-	 * 
-	 * @param arr    数组名
-	 * @param column 字段名
-	 * @param param  字段值
+	 * @value collectionKey 集合的字段名
+	 * @value key 集合中的字段名
+	 * @value value 字段值
 	 * @return
 	 */
-	public <E, R> CriteriaOrWrapper findArrayLike(SerializableFunction<E, R> arr, SerializableFunction<E, R> column, Object param) {
-		super.findArrayLike(ReflectionUtil.getFieldName(arr), column, param);
+	@Override
+	public <T, R, M, E> CriteriaOrWrapper findInCollectionLike(SerializableFunction<T, R> collectionKey, SerializableFunction<M, E> key, String value){
+		super.findInCollectionLike(collectionKey, key, value);
 		return this;
 	}
+
 }

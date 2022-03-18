@@ -185,11 +185,11 @@ mongoHelper：https://gitee.com/cym1102/mongoHelper
 ###### 3.   分页查询
 
 ```
-     FluentPage<Object> fluentPage = new FluentPage<>();
-     fluentPage.setPageSize(20);
+     FluentPage<Object> fluentPageResponse = new FluentPage<>();
+     fluentPageResponse.setPageSize(20);
      FluentPage<DbConfig> page = fluentMongoTemplate.findPage(new CriteriaAndWrapper(),
      		new SortBuilder(DbConfig::getDbVersion, Sort.Direction.DESC),
-     		fluentPage,
+     		fluentPageResponse,
      		DbConfig.class);
      List<DbConfig> contents = page.getContents();
 ```   

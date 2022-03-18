@@ -1,0 +1,13 @@
+fluent\mongo\wraper\CriteriaWrapper.class
+fluent\mongo\reflection\SerializableFunction.class
+fluent\mongo\annotation\FluentCreateTimeBy.class
+fluent\mongo\common\FluentPageResponse.class
+fluent\mongo\builder\SortBuilder.class
+fluent\mongo\annotation\FluentUpdateTimeBy.class
+fluent\mongo\constant\FluentConstant.class
+fluent\mongo\FluentMongoTemplate.class
+fluent\mongo\wraper\CriteriaOrWrapper.class
+fluent\mongo\builder\UpdateBuilder.class
+fluent\mongo\common\FluentPageRequest.class
+fluent\mongo\reflection\ReflectionUtil.class
+fluent\mongo\wraper\CriteriaAndWrapper.class

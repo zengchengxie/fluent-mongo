@@ -17,10 +17,10 @@ public class ReflectionUtil {
 
 	private static Map<SerializableFunction<?, ?>, Field> cache = new ConcurrentHashMap<>();
 
-	public static <E, R> String getFieldName(SerializableFunction<E, R> function) {
+	public static <T, R> String getFieldName(SerializableFunction<T, R> function) {
 		Field field = ReflectionUtil.getField(function);
 
-		// @Filed
+		// 优先获取 @Filed 中标识的属性名
 		org.springframework.data.mongodb.core.mapping.Field fieldAnnotation = field.getAnnotation(org.springframework.data.mongodb.core.mapping.Field.class);
 		if (null != fieldAnnotation) {
 			String filedValue = fieldAnnotation.value();
@@ -30,15 +30,16 @@ public class ReflectionUtil {
 			}
 		}
 
+		// @Filed中没有标识的直接使用属性名称
 		return field.getName();
 	}
 
-	public static Field getField(SerializableFunction<?, ?> function) {
+	public static <T, R> Field getField(SerializableFunction<T, R> function) {
 		return cache.computeIfAbsent(function, ReflectionUtil::findField);
 	}
 
 
-	public static Field findField(SerializableFunction<?, ?> function) {
+	public static <T, R> Field findField(SerializableFunction<T, R> function) {
 		Field field = null;
 		String fieldName = null;
 		try {

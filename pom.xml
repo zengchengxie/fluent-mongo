@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gitee.xiezengcheng</groupId>
-    <artifactId>fluent-mongo</artifactId>
+    <artifactId>fluentmongo</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.1.0</version>
 
     <properties>
         <hutool-version>5.7.12</hutool-version>
-        <spring-boot-starter-data-mongodb-version>2.5.5</spring-boot-starter-data-mongodb-version>
+        <spring-boot-starter-data-mongodb-version>2.6.4</spring-boot-starter-data-mongodb-version>
     </properties>
 
 

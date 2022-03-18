@@ -7,7 +7,7 @@ import java.util.function.Function;
  * @author xiezengcheng
  */
 @FunctionalInterface
-public interface SerializableFunction<E, R> extends Function<E, R>, Serializable {
+public interface SerializableFunction<T, R> extends Function<T, R>, Serializable {
 
 
 }
