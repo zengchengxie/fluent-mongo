@@ -17,7 +17,6 @@ public class FluentPageRequest implements Serializable {
     private final Sort sort;
     private final int page;
     private final int size;
-    // 是否查询全部数据个数
     private final boolean queryTotalCount;
 
     private FluentPageRequest(int page, int size, boolean queryTotalCount, Sort sort) {
