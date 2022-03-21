@@ -26,6 +26,10 @@ public class CriteriaOrWrapper extends CriteriaWrapper {
 		return this;
 	}
 
+	public CriteriaOrWrapper or() {
+		return this;
+	}
+
 	/**
 	 * 等于
 	 * 

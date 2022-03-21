@@ -27,6 +27,10 @@ public class CriteriaAndWrapper extends CriteriaWrapper {
 		return this;
 	}
 
+	public CriteriaAndWrapper and() {
+		return this;
+	}
+
 
 	/**
 	 * 等于
