@@ -5,32 +5,18 @@ fluent-mongo是MongoTemplate增强工具包，简化 CRUD 操作,封装了许多
 
 #### 安装步骤
 
-1.  执行 git clone 
+1.  新建SpringBoot工程,在pom.xml在加入依赖
 
 ```
-  git clone https://gitee.com/xiezengcheng/fluent-mongo.git
-```
-
-2.  将依赖安装到本地maven库
-
-```
-  cd fluent-mongo
-  mvn clean package install -Dmaven.test.skip=true
-```
-
-
-3.  新建SpringBoot工程,在pom.xml在加入依赖
-
-```
-  <dependency>
+    <dependency>
       <groupId>com.gitee.xiezengcheng</groupId>
       <artifactId>fluentmongo</artifactId>
       <version>1.1.0</version>
-  </dependency>
+    </dependency>
 
 ```
 
-4.  新建FluentMongoConfig配置类
+2.  新建FluentMongoConfig配置类
 
 ```
     @Configuration
@@ -47,6 +33,10 @@ fluent-mongo是MongoTemplate增强工具包，简化 CRUD 操作,封装了许多
 #### 快速上手
 ###### 1.  查询全部
 ```
+    // 注入依赖
+    @Autowired
+	private FluentMongoTemplate fluentMongoTemplate;
+
     List<DbConfig> configList = fluentMongoTemplate.findAll(DbConfig.class, Sort.unsorted());
 ```
 ###### 2.  条件查询
