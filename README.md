@@ -10,8 +10,8 @@ fluent-mongo是MongoTemplate增强工具包,简化查询操作,对条件查询�
 ```
     <dependency>
       <groupId>com.gitee.xiezengcheng</groupId>
-      <artifactId>fluentmongo</artifactId>
-      <version>1.1.0</version>
+      <artifactId>fluent-mongo</artifactId>
+      <version>1.1.1</version>
     </dependency>
 
 ```
