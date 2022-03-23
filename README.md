@@ -1,11 +1,11 @@
 # fluent-mongo
 
 #### 介绍
-fluent-mongo是MongoTemplate增强工具包，简化 CRUD 操作,封装了许多通用的方法。同时，也提供自定义方法的方式。
+fluent-mongo是MongoTemplate增强工具包,简化查询操作,对条件查询、排序、分页进行了很好的封装。
 
 #### 安装步骤
 
-1.  新建SpringBoot工程,在pom.xml在加入依赖
+###### 1. 新建SpringBoot工程,在pom.xml在加入依赖
 
 ```
     <dependency>
@@ -16,7 +16,7 @@ fluent-mongo是MongoTemplate增强工具包，简化 CRUD 操作,封装了许多
 
 ```
 
-2.  新建FluentMongoConfig配置类
+###### 2. 新建FluentMongoConfig配置类
 
 ```
     @Configuration
@@ -28,6 +28,39 @@ fluent-mongo是MongoTemplate增强工具包，简化 CRUD 操作,封装了许多
         }
     }
 
+```
+###### 3. 在application.yml中配置mongodb连接信息
+```
+# application.yml
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/test
+```
+
+###### 4. 新建实体类
+```
+@Document(collection = "tb_config")
+public class DbConfig {
+
+    @Id
+    private Integer id;
+
+    @Field("host")
+    private String host;
+
+    @Field("port")
+    private Integer port;
+
+    @Field("path")
+    private String path;
+
+    @Field("dbVersion")
+    private Integer dbVersion;
+    
+    ......
+}
 ```
 
 #### 快速上手
