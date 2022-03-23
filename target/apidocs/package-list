@@ -1,7 +1,7 @@
-fluent.mongo
-fluent.mongo.annotation
-fluent.mongo.builder
-fluent.mongo.common
-fluent.mongo.constant
-fluent.mongo.reflection
-fluent.mongo.wraper
+com.gitee.xiezengcheng.fluent.mongo
+com.gitee.xiezengcheng.fluent.mongo.annotation
+com.gitee.xiezengcheng.fluent.mongo.builder
+com.gitee.xiezengcheng.fluent.mongo.common
+com.gitee.xiezengcheng.fluent.mongo.constant
+com.gitee.xiezengcheng.fluent.mongo.reflection
+com.gitee.xiezengcheng.fluent.mongo.wraper
