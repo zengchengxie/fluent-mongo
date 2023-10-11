@@ -16,6 +16,10 @@ public class UpdateBuilder {
 
 	}
 
+	public static UpdateBuilder builder() {
+		return new UpdateBuilder();
+	}
+
 	public <T, R> UpdateBuilder(SerializableFunction<T, R> key, Object value) {
 		update.set(ReflectionUtil.getFieldName(key), value);
 	}

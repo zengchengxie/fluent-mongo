@@ -39,6 +39,15 @@ public abstract class CriteriaWrapper {
 		return criteria;
 	}
 
+	public static CriteriaAndWrapper andWrapper(){
+		return new CriteriaAndWrapper();
+	}
+
+	public static CriteriaOrWrapper orWrapper() {
+		return new CriteriaOrWrapper();
+	}
+
+
 	/**
 	 * 将Wrapper转化为Query
 	 *

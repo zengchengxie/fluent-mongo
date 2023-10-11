@@ -1,5 +1,6 @@
 package com.gitee.xiezengcheng.fluent.mongo.common;
 
+import com.gitee.xiezengcheng.fluent.mongo.builder.SortBuilder;
 import com.gitee.xiezengcheng.fluent.mongo.reflection.ReflectionUtil;
 import com.gitee.xiezengcheng.fluent.mongo.reflection.SerializableFunction;
 import org.springframework.data.domain.Sort;
@@ -34,6 +35,20 @@ public class FluentPageRequest implements Serializable {
         this.queryTotalCount = queryTotalCount;
     }
 
+    private FluentPageRequest(int page, int size, boolean queryTotalCount, SortBuilder sortBuilder) {
+        if (page < 1) {
+            throw new IllegalArgumentException("Page index must not be less than one!");
+        } else if (size < 1) {
+            throw new IllegalArgumentException("Page size must not be less than one!");
+        } else {
+            this.page = page;
+            this.size = size;
+        }
+        Assert.notNull(sortBuilder, "Sort must not be null!");
+        this.sort = sortBuilder.build();
+        this.queryTotalCount = queryTotalCount;
+    }
+
     public static FluentPageRequest of(int page, int size) {
         return new FluentPageRequest(page, size, true, Sort.unsorted());
     }
@@ -46,8 +61,16 @@ public class FluentPageRequest implements Serializable {
         return new FluentPageRequest(page, size, true,sort);
     }
 
+    public static FluentPageRequest of(int page, int size, SortBuilder sortBuilder) {
+        return new FluentPageRequest(page, size, true,sortBuilder.build());
+    }
+
     public static FluentPageRequest of(int page, int size, boolean queryTotalCount, Sort sort) {
         return new FluentPageRequest(page, size, queryTotalCount, sort);
+    }
+
+    public static FluentPageRequest of(int page, int size, boolean queryTotalCount, SortBuilder sortBuilder) {
+        return new FluentPageRequest(page, size, queryTotalCount, sortBuilder.build());
     }
 
     public static FluentPageRequest of(int page, int size, boolean queryTotalCount, Sort.Direction direction, String... properties) {

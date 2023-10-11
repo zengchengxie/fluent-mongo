@@ -1,6 +1,7 @@
 package com.gitee.xiezengcheng.fluent.mongo;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.gitee.xiezengcheng.fluent.mongo.builder.SortBuilder;
 import com.gitee.xiezengcheng.fluent.mongo.builder.UpdateBuilder;
 import com.gitee.xiezengcheng.fluent.mongo.common.FluentPageRequest;
 import com.gitee.xiezengcheng.fluent.mongo.common.FluentPageResponse;
@@ -176,6 +177,22 @@ public class FluentMongoTemplate {
 	 *
 	 * @param criteriaWrapper 查询
 	 * @param clazz 类
+	 * @return Optional<T> 对象
+	 */
+	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz) {
+
+		Query query = new Query(criteriaWrapper.build());
+		query.limit(1);
+		query.with(sortBuilder.build());
+		T t = mongoTemplate.findOne(query, clazz);
+		return Optional.ofNullable(t);
+	}
+
+	/**
+	 * 根据条件查找单个
+	 *
+	 * @param criteriaWrapper 查询
+	 * @param clazz 类
 	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
 	 * @return Optional<T> 对象
 	 */
@@ -184,6 +201,26 @@ public class FluentMongoTemplate {
 		Query query = new Query(criteriaWrapper.build());
 		query.limit(1);
 		query.with(sort);
+		T t =  mongoTemplate.findOne(query, clazz, collectionName);
+		return Optional.ofNullable(t);
+
+	}
+
+
+	/**
+	 * 根据条件查找单个
+	 *
+	 * @param criteriaWrapper 查询
+	 * @param clazz 类
+	 * @param sortBuilder 排序
+	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @return Optional<T> 对象
+	 */
+	public <T> Optional<T> findOneByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz,String collectionName) {
+
+		Query query = new Query(criteriaWrapper.build());
+		query.limit(1);
+		query.with(sortBuilder.build());
 		T t =  mongoTemplate.findOne(query, clazz, collectionName);
 		return Optional.ofNullable(t);
 
@@ -210,6 +247,22 @@ public class FluentMongoTemplate {
 	/**
 	 * 根据条件查找List
 	 *
+	 * @param <T>             类型
+	 * @param criteriaWrapper 查询
+	 * @param sortBuilder     排序
+	 * @param clazz           类
+	 * @param collectionName  集合名称 如果没有则取的是实体类注解 @Document
+	 * @return List 列表
+	 */
+	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz, String collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		query.with(sortBuilder.build());
+		return mongoTemplate.find(query, clazz, collectionName);
+	}
+
+	/**
+	 * 根据条件查找List
+	 *
 	 * @param <T>      类型
 	 * @param criteriaWrapper 查询
 	 * @param sort     排序
@@ -222,6 +275,20 @@ public class FluentMongoTemplate {
 		return mongoTemplate.find(query, clazz);
 	}
 
+	/**
+	 * 根据条件查找List
+	 *
+	 * @param <T>      类型
+	 * @param criteriaWrapper 查询
+	 * @param sortBuilder     排序
+	 * @param clazz    类
+	 * @return List 列表
+	 */
+	public <T> List<T> findListByQuery(CriteriaWrapper criteriaWrapper, SortBuilder sortBuilder, Class<T> clazz) {
+		Query query = new Query(criteriaWrapper.build());
+		query.with(sortBuilder.build());
+		return mongoTemplate.find(query, clazz);
+	}
 
 	/**
 	 * 查询全部
@@ -239,6 +306,19 @@ public class FluentMongoTemplate {
 	/**
 	 * 查询全部
 	 *
+	 * @param <T>            类型
+	 * @param clazz          类
+	 * @param collectionName 集合名称 如果没有则取的是实体类注解 @Document
+	 * @param sortBuilder    排序
+	 * @return List 列表
+	 */
+	public <T> List<T> findAll(Class<T> clazz, String collectionName, SortBuilder sortBuilder) {
+		return findListByQuery(new CriteriaAndWrapper(), sortBuilder.build(), clazz, collectionName);
+	}
+
+	/**
+	 * 查询全部
+	 *
 	 * @param <T>   类型
 	 * @param clazz 类
 	 * @param sort 排序
@@ -246,6 +326,18 @@ public class FluentMongoTemplate {
 	 */
 	public <T> List<T> findAll(Class<T> clazz,Sort sort) {
 		return findListByQuery(new CriteriaAndWrapper(), sort, clazz);
+	}
+
+	/**
+	 * 查询全部
+	 *
+	 * @param <T>   类型
+	 * @param clazz 类
+	 * @param sortBuilder 排序
+	 * @return List 列表
+	 */
+	public <T> List<T> findAll(Class<T> clazz, SortBuilder sortBuilder) {
+		return findListByQuery(new CriteriaAndWrapper(), sortBuilder.build(), clazz);
 	}
 
 
@@ -391,6 +483,19 @@ public class FluentMongoTemplate {
 		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), update, clazz, collectionName);
 	}
 
+	/**
+	 * 更新查到的全部文档
+	 *
+	 * @param criteriaWrapper 查询条件
+	 * @param updateBuilder   更新
+	 * @param collectionName 集合名称
+	 * @param clazz           类
+	 */
+	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, UpdateBuilder updateBuilder, Class<?> clazz, String collectionName) {
+		Query query = new Query(criteriaWrapper.build());
+		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.build(), clazz, collectionName);
+	}
+
 
 	/**
 	 * 更新查到的全部文档
@@ -404,6 +509,17 @@ public class FluentMongoTemplate {
 		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), update, clazz);
 	}
 
+	/**
+	 * 更新查到的全部文档
+	 *
+	 * @param criteriaWrapper 查询条件
+	 * @param updateBuilder   更新
+	 * @param clazz           类
+	 */
+	public UpdateResult updateMulti(CriteriaWrapper criteriaWrapper, UpdateBuilder updateBuilder, Class<?> clazz) {
+		Query query = new Query(criteriaWrapper.build());
+		return mongoTemplate.updateMulti(new Query(criteriaWrapper.build()), updateBuilder.build(), clazz);
+	}
 
 	/**
 	 * 根据条件删除

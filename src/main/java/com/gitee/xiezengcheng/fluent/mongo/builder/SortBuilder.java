@@ -3,6 +3,9 @@ package com.gitee.xiezengcheng.fluent.mongo.builder;
 import cn.hutool.core.collection.CollectionUtil;
 import com.gitee.xiezengcheng.fluent.mongo.reflection.ReflectionUtil;
 import com.gitee.xiezengcheng.fluent.mongo.reflection.SerializableFunction;
+import com.gitee.xiezengcheng.fluent.mongo.wraper.CriteriaAndWrapper;
+import com.gitee.xiezengcheng.fluent.mongo.wraper.CriteriaOrWrapper;
+import com.gitee.xiezengcheng.fluent.mongo.wraper.CriteriaWrapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -20,6 +23,10 @@ public class SortBuilder {
 
 	public SortBuilder() {
 
+	}
+
+	public static SortBuilder builder() {
+		return new SortBuilder();
 	}
 
 	public SortBuilder(List<Order> orderList) {
