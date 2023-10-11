@@ -1,7 +1,7 @@
 ### IDEA ###
 .idea/*
 idea
-*.iml
+fluent-mongo.iml
 */*.iml
 /.gradle/
 target
